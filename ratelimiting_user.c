@@ -215,8 +215,7 @@ void update_ports(char *ports)
     uint16_t port = 0;
     uint8_t pval = 1;
     tmp = strdup(ports);
-    char *eptr;
-    while( (ptr = strsep(&tmp, delim)) != NULL )
+    while((ptr = strsep(&tmp, delim)) != NULL )
     {
         ptr = trim_space(ptr);
         port = (uint16_t)(strtoi(ptr));
@@ -235,7 +234,8 @@ int main(int argc, char **argv)
     struct rlimit r = {RLIM_INFINITY, RLIM_INFINITY};
     int len = 0;
     snprintf(bpf_obj_file, sizeof(bpf_obj_file), "%s_kern.o", argv[0]);
-    char *eptr;
+
+    memset(&ports, 0, 2048);
 
     /* Parse commands line args */
     while ((opt = getopt_long(argc, argv, "h", long_options, &longindex)) != -1)
