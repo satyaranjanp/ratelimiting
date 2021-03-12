@@ -78,7 +78,7 @@ void log_timestamp(char *log_ts) {
     #endif
 }
 
-int get_length(char *str)
+int get_length(const char *str)
 {
     int len = 0;
     if (*str == '\0')
@@ -348,7 +348,7 @@ int main(int argc, char **argv)
             perror("bpf_update_elem");
             return 1;
     }
-    if (ports != NULL) {
+    if (get_length(ports)) {
         log_info("port list is %s\n", ports);
         update_ports(ports);
     }
