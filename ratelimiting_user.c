@@ -215,7 +215,7 @@ void update_ports(char *ports)
     uint16_t port = 0;
     uint8_t pval = 1;
     tmp = strdup(ports);
-    while((ptr = strsep(&tmp, delim)) != NULL )
+    while((ptr = strsep(&tmp, delim)) != NULL)
     {
         ptr = trim_space(ptr);
         port = (uint16_t)(strtoi(ptr));
