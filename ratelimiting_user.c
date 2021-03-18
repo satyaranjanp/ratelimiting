@@ -305,6 +305,9 @@ int main(int argc, char **argv)
         log_err("Failed to update prog fd in the chain");
         exit(EXIT_FAILURE);
     }
+     /* closing map fd to avoid stale map */
+     close(prev_prog_map_fd);
+
     int next_prog_map_fd = bpf_obj_get(xdp_rl_ingress_next_prog);
     if (next_prog_map_fd < 0) {
         log_info("Failed to fetch next prog map fd, creating one");
@@ -313,6 +316,7 @@ int main(int argc, char **argv)
             exit(EXIT_FAILURE);
         }
     }
+
 
     /* Map FDs are sequenced same as they are defined in the bpf program ie.,
      * map_fd[0] = rl_config_map, map_fd[1] = rl_window_map
