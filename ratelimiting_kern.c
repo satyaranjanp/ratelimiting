@@ -24,8 +24,8 @@
 
 /* Stores the ratelimit value(per second) */
 struct bpf_map_def SEC("maps") rl_config_map = {
-	.type		= BPF_MAP_TYPE_HASH,
-	.key_size	= sizeof(uint64_t),
+	.type		= BPF_MAP_TYPE_ARRAY,
+	.key_size	= sizeof(uint32_t),
 	.value_size	= sizeof(uint64_t),
 	.max_entries	= 1,
 };
