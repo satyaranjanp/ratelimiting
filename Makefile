@@ -3,7 +3,7 @@
 LINUX_SRC_PATH := /usr/src/linux
 BPF_SAMPLES_PATH := $(LINUX_SRC_PATH)/samples/bpf
 TOOLS_PATH := $(BPF_SAMPLES_PATH)/../../tools
-L3AF_SRC_PATH := $(BPF_SAMPLES_PATH)/l3af-ratelimiting
+L3AF_SRC_PATH := $(BPF_SAMPLES_PATH)/ratelimiting
 
 
 # List of programs to build
