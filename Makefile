@@ -34,12 +34,7 @@ HOSTCFLAGS_ratelimiting_user.o +=  -I. -I$(BPF_SAMPLES_PATH) -I$(srctree)/tools/
 
 KBUILD_HOSTLDLIBS               += $(LIBBPF) -lelf
 HOSTLDLIBS_test_overhead        += -lrt
-#-pthread -lm -lz -lpcap -lcrypto -lcurl -g -lpthread
 
-
-
-# Allows pointing LLC/CLANG to a LLVM backend with bpf support, redefine on cmdline:
-#  make samples/bpf/ LLC=~/git/llvm/build/bin/llc CLANG=~/git/llvm/build/bin/clang
 LLC ?= llc
 CLANG ?= clang
 LLVM_OBJCOPY ?= llvm-objcopy
@@ -71,8 +66,6 @@ clean:
 	@rm -f l3af_ratelimiting.tar.gz
 
 $(LIBBPF): FORCE
-# Fix up variables inherited from Kbuild that tools/ build system won't like
-#	$(MAKE) -C $(dir $@) RM='rm -rf' LDFLAGS= srctree=$(BPF_SAMPLES_PATH)/../../ O=
 
 # Fix up variables inherited from Kbuild that tools/ build system won't like
 	$(MAKE) -C $(dir $@) RM='rm -rf' EXTRA_CFLAGS="$(TPROGS_CFLAGS)" \
