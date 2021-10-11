@@ -51,7 +51,7 @@ struct bpf_map_def SEC("maps") rl_recv_count_map = {
 	.max_entries	= 1
 };
 
-/* Maintains the total number of conenctions dropped as the ratelimit is hit
+/* Maintains the total number of connections dropped as the ratelimit is hit
  * Used only for metrics visibility */
 struct bpf_map_def SEC("maps") rl_drop_count_map = {
 	.type		= BPF_MAP_TYPE_HASH,
@@ -60,7 +60,7 @@ struct bpf_map_def SEC("maps") rl_drop_count_map = {
 	.max_entries	= 1
 };
 
-/* Maintains the interested listen ports */
+/* Maintains the ports to be ratelimited */
 struct bpf_map_def SEC("maps") rl_ports_map = {
         .type           = BPF_MAP_TYPE_HASH,
         .key_size       = sizeof(uint16_t),
@@ -89,7 +89,7 @@ static __always_inline int _xdp_ratelimit(struct xdp_md *ctx)
 
     /* Check if it is a valid ethernet packet */
     if (data + sizeof(*eth) > data_end)
-        return XDP_PASS;
+        return XDP_DROP;
 
     /* Ignore other than ethernet packets */
     uint16_t eth_type = eth->h_proto;
@@ -129,73 +129,73 @@ static __always_inline int _xdp_ratelimit(struct xdp_md *ctx)
     if (!rate)
         return XDP_PASS;
 
-    /* Current time in monotinic clock */
+    /* Current time in monotonic clock */
     uint64_t tnow = bpf_ktime_get_ns();
 
-    /* Used for nanoseconds to seconds conversions and vice-versa */
-    uint64_t SECOND = 1000000000;
+    /* Used for second to nanoseconds conversions and vice-versa */
+    uint64_t NANO = 1000000000;
 
     /* Used for converting decimals points to percentages as decimal points
      * are not recommended in the kernel.
      * Ex: 0.3 would be converted as 30 with this multiplication factor to
      * perform the calculations needed. */
-    uint64_t HUNDRED = 100;
+    uint64_t MULTIPLIER = 100;
 
     /* Round off the current time to form the current window key.
      * Ex: ts of the incoming connections from the time 16625000000000 till
      * 166259999999 is rounded off to 166250000000000 to track the incoming
      * connections received in that one second interval. */
-    uint64_t ckey = tnow / SECOND * SECOND;
+    uint64_t cw_key = tnow / NANO * NANO;
 
     /* Previous window is one second before the current window */
-    uint64_t pkey = ckey - SECOND;
+    uint64_t pw_key = cw_key - NANO;
 
     /* Number of incoming connections in the previous window(second) */
-    uint64_t *pcount = bpf_map_lookup_elem(&rl_window_map, &pkey);
+    uint64_t *pw_count = bpf_map_lookup_elem(&rl_window_map, &pw_key);
 
     /* Number of incoming connections in the current window(second) */
-    uint32_t *ccount = bpf_map_lookup_elem(&rl_window_map, &ckey);
+    uint32_t *cw_count = bpf_map_lookup_elem(&rl_window_map, &cw_key);
 
     /* Total number of incoming connections so far */
-    uint64_t *icount = bpf_map_lookup_elem(&rl_recv_count_map, &rkey);
+    uint64_t *in_count = bpf_map_lookup_elem(&rl_recv_count_map, &rkey);
 
     /* Total number of dropped connections so far */
-    uint64_t *dcount = bpf_map_lookup_elem(&rl_drop_count_map, &rkey);
+    uint64_t *drop_count = bpf_map_lookup_elem(&rl_drop_count_map, &rkey);
 
     /* Just make the verifier happy, it would never be the case in real as
      * these two counters are initialised in the user space. */
-    if(!icount || !dcount)
+    if(!in_count || !drop_count)
         return XDP_PASS;
 
     /* Increment the total number of incoming connections counter */
 
-    (*icount)++;
+    (*in_count)++;
 
-    if (!ccount)
+    if (!cw_count)
     {
         /* This is the first connection in the current window,
          * initialize the current window counter. */
         uint64_t init_count = 0;
-        bpf_map_update_elem(&rl_window_map, &ckey, &init_count, BPF_NOEXIST);
-        ccount = bpf_map_lookup_elem(&rl_window_map, &ckey);
+        bpf_map_update_elem(&rl_window_map, &cw_key, &init_count, BPF_NOEXIST);
+        cw_count = bpf_map_lookup_elem(&rl_window_map, &cw_key);
         /* Just make the verifier happy */
-        if (!ccount)
+        if (!cw_count)
             return XDP_PASS;
     }
-    if (!pcount)
+    if (!pw_count)
     {
         /* This is the fresh start of system or there have been no
          * connections in the last second, so make the decision purely based
          * on the incoming connections in the current window. */
-        if (*ccount >= *rate)
+        if (*cw_count >= *rate)
         {
             /* Connection count in the current window already exceeded the
              * rate limit so drop this connection. */
-            (*dcount)++;
+            (*drop_count)++;
             return XDP_DROP;
         }
         /* Allow otherwise */
-        (*ccount)++;
+        (*cw_count)++;
         return XDP_PASS;
     }
 
@@ -203,21 +203,21 @@ static __always_inline int _xdp_ratelimit(struct xdp_md *ctx)
      * considering the connections accepted in previous window and          *
      * current window based on what % of the sliding window(tnow - 1) falls *
      * in previous window and what % of it is in the current window         */
-    uint64_t pweight = HUNDRED -
-        (uint64_t)(((tnow - ckey) * HUNDRED) / SECOND);
+    uint64_t pw_weight = MULTIPLIER -
+        (uint64_t)(((tnow - cw_key) * MULTIPLIER) / NANO);
 
-    uint64_t total_count = (uint64_t)((pweight * (*pcount)) +
-        (*ccount) * HUNDRED);
+    uint64_t total_count = (uint64_t)((pw_weight * (*pw_count)) +
+        (*cw_count) * MULTIPLIER);
 
-    if (total_count > ((*rate) * HUNDRED))
+    if (total_count > ((*rate) * MULTIPLIER))
     {
         /* Connection count from tnow to (tnow-1) exceeded the rate limit,
          * so drop this connection. */
-        (*dcount)++;
+        (*drop_count)++;
         return XDP_DROP;
     }
     /* Allow otherwise */
-    (*ccount)++;
+    (*cw_count)++;
     return XDP_PASS;
 }
 

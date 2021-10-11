@@ -81,7 +81,7 @@ void log_timestamp(char *log_ts) {
     #endif
 }
 
-int get_length(const char *str)
+static int get_length(const char *str)
 {
     int len = 0;
     if (*str == '\0')
@@ -93,7 +93,7 @@ int get_length(const char *str)
 }
 
 /* Set the logging output to the default log file configured */
-FILE* set_logfile()
+static FILE* set_logfile(void)
 {
     if (info != NULL){
         return info;
@@ -116,15 +116,15 @@ static int xdp_unlink_bpf_chain(const char *map_filename) {
     if (map_fd > 0) {
        ret = bpf_map_delete_elem(map_fd, &key);
        if (ret != 0) {
-           log_err("xdp chain remove program failed");
+           log_err("Failed to remove XDP program from the chain");
        }
     }
     else {
-       log_err("Previous program's map is not found %s", map_filename);
+       log_err("Failed to fetch previous XDP program in the chain");
     }
 
     if (remove(xdp_rl_ingress_next_prog) < 0) {
-        log_warn("Failed to remove map file - xdp_rl_ingress_next_prog");
+        log_warn("Failed to remove link to next XDP program in the chain");
     }
 
     return ret;
@@ -135,20 +135,18 @@ static int xdp_unlink_bpf_chain(const char *map_filename) {
 static void signal_handler(int signal)
 {
     log_info("Received signal %d", signal);
-
-    xdp_unlink_bpf_chain(prev_prog_map);
     int i = 0;
+    xdp_unlink_bpf_chain(prev_prog_map);
     for(i=0; i<MAP_COUNT;i++) {
        close(map_fd[i]);
     }
-
     if (info != NULL)
         fclose(info);
     exit(EXIT_SUCCESS);
 }
 
 /* Get monotonic clock time in ns */
-static __u64 time_get_ns()
+static __u64 time_get_ns(void)
 {
     struct timespec ts;
 
@@ -158,7 +156,7 @@ static __u64 time_get_ns()
 
 /* Delete stale map entries(LRU) based on the timestamp at which
  * a map element is created. */
-static void delete_stale_entries()
+static void delete_stale_entries(void)
 {
     log_debug("Deleting stale map entries periodically");
 
@@ -183,7 +181,7 @@ static void delete_stale_entries()
     }
 }
 
-char * trim_space(char *str) {
+static char* trim_space(char *str) {
     char *end;
     /* skip leading whitespace */
     while (isspace(*str)) {
@@ -199,7 +197,7 @@ char * trim_space(char *str) {
     return str;
 }
 
-int strtoi(const char *str) {
+static int strtoi(const char *str) {
   char *endptr;
   errno = 0;
 
@@ -212,7 +210,7 @@ int strtoi(const char *str) {
   return (int) long_var;
 }
 
-void update_ports(char *ports)
+static void update_ports(char *ports)
 {
     char *ptr,*tmp ;
     uint16_t port = 0;
@@ -320,43 +318,42 @@ int main(int argc, char **argv)
         }
     }
 
-
     /* Map FDs are sequenced same as they are defined in the bpf program ie.,
      * map_fd[0] = rl_config_map, map_fd[1] = rl_window_map
      * map_fd[2] = rl_recv_count_map, map_fd[3] = rl_drop_count_map
      * map_fd[4] = rl_ports_map
-     * map_fd[5] =  xdp_rl_ingress_next_prog*/
+     * map_fd[5] = xdp_rl_ingress_next_prog*/
     if (!map_fd[0]){
-        log_err("ERROR: rl_config_map not found");
+        log_err("Failed to fetch config map");
         return -1;
     }
     ret = bpf_map_update_elem(map_fd[0], &ckey, &rate, 0);
     if (ret) {
-        perror("bpf_update_elem");
+        perror("Failed to update config map");
         return 1;
     }
 
     if (!map_fd[2]) {
-        log_err("ERROR: rl_recv_count_map not found");
+        log_err("Failed to fetch receive count map");
         return -1;
     }
     ret = bpf_map_update_elem(map_fd[2], &rkey, &recv_count, 0);
     if (ret) {
-        perror("bpf_update_elem");
+        perror("Failed to update receive count map");
         return 1;
     }
 
     if (!map_fd[3]) {
-        log_err("ERROR: rl_drop_count_map not found");
+        log_err("Failed to fetch drop count map");
         return -1;
     }
     ret = bpf_map_update_elem(map_fd[3], &dkey, &drop_count, 0);
     if (ret) {
-            perror("bpf_update_elem");
+            perror("Failed to update drop count map");
             return 1;
     }
     if (get_length(ports)) {
-        log_info("port list is %s\n", ports);
+        log_info("Configured port list is %s\n", ports);
         update_ports(ports);
     }
 
@@ -368,7 +365,8 @@ int main(int argc, char **argv)
     while(1)
     {
         sleep(60);
-        /* Keep deleting the stale map entries periodically */
+        /* Keep deleting the stale map entries periodically *
+         * TODO Check if LRU maps can be used.              */
         delete_stale_entries();
         fflush(info);
     }
