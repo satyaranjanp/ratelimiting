@@ -24,13 +24,13 @@ jobs:
           cd $LINUX_SRC_DIR
           make defconfig
 
-      - uses: actions/checkout@v2
-        with:
-          path: /usr/src/linux/samples/bpf/
+      - run:
+          cd /usr/src/linux/samples/bpf/
+          git clone https://github.com/satyaranjanp/ratelimiting.git/
 
       - name: build
         run: |
-          cd /usr/src/linux/samples/bpf/
+          cd /usr/src/linux/samples/bpf/ratelimiting
           ls
           make
 
