@@ -12,7 +12,29 @@ jobs:
       - name: setup build dir
         run: |
           sudo chown -R $(whoami):$(whoami) /usr
-          
+          apt-get install -y bc \
+          bison \
+          build-essential \
+          clang \
+          curl \
+          exuberant-ctags \
+          flex \
+          gcc-8 \
+          gcc-multilib \
+          gnutls-bin \
+          libc6-dev \
+          libcurl4-openssl-dev \
+          libelf-dev \
+          libjson-c-dev \
+          libncurses5-dev \
+          libpcap-dev \
+          libssl-dev \
+          linux-headers-generic \
+          linux-tools-common \
+          linux-tools-generic \
+          llvm \
+          rsync
+      
       - name: clone kernel
         run: |
           git clone --branch v5.1 --depth 1 https://github.com/torvalds/linux.git /usr/src/linux
