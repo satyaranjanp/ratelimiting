@@ -1,0 +1,37 @@
+name: Build ratelimiting
+on:
+  push:
+    branches: [ $default-branch ]
+  pull_request:
+    branches: [ $default-branch ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Run a one-line script
+        run: echo Hello from Octo Organization
+
+      - name: setup build dir
+        run: |
+          sudo chown -R $(whoami):$(whoami) /usr
+          
+      - name: clone kernel
+        run: |
+          git clone --branch v5.1 --depth 1 https://github.com/torvalds/linux.git /usr/src/linux
+          LINUX_SRC_DIR=/usr/src/linux
+          cd $LINUX_SRC_DIR
+          make defconfig
+
+      - uses: actions/checkout@v2
+        with:
+          path: /usr/src/linux/samples/bpf/
+
+      - name: build
+        run: |
+          cd /usr/src/linux/samples/bpf/
+          ls
+          make
+
+      - run: echo "🍏 This job's status is ${{ job.status }}."
