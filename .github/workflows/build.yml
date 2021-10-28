@@ -11,8 +11,7 @@ jobs:
 
       - name: setup build dir
         run: |
-          sudo chown -R $(whoami):$(whoami) /usr
-          apt-get install -y bc \
+          sudo apt-get install -y bc \
           bison \
           build-essential \
           clang \
@@ -37,6 +36,7 @@ jobs:
       
       - name: clone kernel
         run: |
+          sudo chown -R $(whoami):$(whoami) /usr
           git clone --branch v5.1 --depth 1 https://github.com/torvalds/linux.git /usr/src/linux
           LINUX_SRC_DIR=/usr/src/linux
           cd $LINUX_SRC_DIR
