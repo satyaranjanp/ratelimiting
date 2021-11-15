@@ -1,5 +1,7 @@
 name: Build ratelimiting
-on: [push]
+on:
+  pull_request:
+    branches: [ $default-branch ]
 jobs:
   build:
     runs-on: ubuntu-latest
