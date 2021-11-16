@@ -8,13 +8,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: ubuntu:20.04
+      image: ubuntu:bionic
 
     steps:
       - name: setup build dir
         run: |
-          sudo apt-get update
-          sudo apt-get install -y bc \
+          apt-get update
+          apt-get install -y bc \
           bison \
           build-essential \
           clang \
@@ -41,7 +41,7 @@ jobs:
         run: |
           whoami
           ls -l / | grep usr
-          sudo chmod 777 /usr
+          chmod 777 /usr
           echo "After permission"
           ls -l / | grep usr
           #sudo chown -R $(whoami):$(whoami) /usr
