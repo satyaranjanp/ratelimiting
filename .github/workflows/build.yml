@@ -41,7 +41,7 @@ jobs:
           linux-tools-generic \
           llvm \
           rsync \
-          git-all
+          git
       
       - name: clone kernel
         run: |
