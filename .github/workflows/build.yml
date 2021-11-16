@@ -58,6 +58,3 @@ jobs:
           ls
           make
           
-      - run: |
-          cd $GITHUB_WORKSPACE
-          echo "🍏 This job's status is ${{ job.status }}."
