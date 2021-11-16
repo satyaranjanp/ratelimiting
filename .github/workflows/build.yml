@@ -45,15 +45,17 @@ jobs:
 
       - name: Clone repo
         uses: actions/checkout@v2
-        #with:
+        with:
+          path: "../../../../../usr/src/linux/samples/bpf/"
         #  ref: ${{ github.event.pull_request.head.sha }}
 
       - name: build ratelimiting
         run: |
-          cd $GITHUB_WORKSPACE/../
+          #cd $GITHUB_WORKSPACE/../
+          cd ../../../../../usr/src/linux/samples/bpf/ratelimiting
           pwd
-          cp -r ratelimiting /usr/src/linux/samples/bpf/
-          cd /usr/src/linux/samples/bpf/ratelimiting
+          #cp -r ratelimiting /usr/src/linux/samples/bpf/
+          #cd /usr/src/linux/samples/bpf/ratelimiting
           git log
           ls
           make
