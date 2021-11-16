@@ -11,6 +11,11 @@ jobs:
       image: ubuntu:bionic
 
     steps:
+      - name: check docker container
+        run: |
+          pwd
+          whoami
+          
       - name: setup build dir
         run: |
           apt-get update
