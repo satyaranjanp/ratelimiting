@@ -15,8 +15,8 @@ jobs:
 
       - run: |
           cd $GITHUB_WORKSPACE
-          ls
-          cd ratelimiting
+          pwd          
           git branch
+          git log
 
       - run: echo "🍏 This job's status is ${{ job.status }}."
