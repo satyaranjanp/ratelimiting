@@ -41,7 +41,7 @@ jobs:
         run: |
           whoami
           ls -l / | grep usr
-          chmod 777 /usr
+          sudo chmod 777 /usr
           echo "After permission"
           ls -l / | grep usr
           #sudo chown -R $(whoami):$(whoami) /usr
