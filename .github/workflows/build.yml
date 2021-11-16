@@ -9,14 +9,52 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - name: setup build dir
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bc \
+          bison \
+          build-essential \
+          clang \
+          curl \
+          exuberant-ctags \
+          flex \
+          gcc-8 \
+          gcc-multilib \
+          gnutls-bin \
+          libc6-dev \
+          libcurl4-openssl-dev \
+          libelf-dev \
+          libjson-c-dev \
+          libncurses5-dev \
+          libpcap-dev \
+          libssl-dev \
+          linux-headers-generic \
+          linux-tools-common \
+          linux-tools-generic \
+          llvm \
+          rsync
+      
+      - name: clone kernel
+        run: |
+          sudo chown -R $(whoami):$(whoami) /usr
+          git clone --branch v5.1 --depth 1 https://github.com/torvalds/linux.git /usr/src/linux
+          LINUX_SRC_DIR=/usr/src/linux
+          cd $LINUX_SRC_DIR
+          make defconfig
+
+      - name: Clone repo
+        uses: actions/checkout@v2
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - run: |
-          cd $GITHUB_WORKSPACE
-          pwd          
-          git branch
-          git log
-
+      - name: build ratelimiting
+        run: |
+          cd $GITHUB_WORKSPACE/../
+          pwd
+          mv ratelimiting /usr/src/linux/samples/bpf/
+          cd /usr/src/linux/samples/bpf/ratelimiting
+          ls
+          make
+          
       - run: echo "🍏 This job's status is ${{ job.status }}."
