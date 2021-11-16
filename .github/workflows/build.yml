@@ -52,7 +52,7 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE/../
           pwd
-          mv ratelimiting /usr/src/linux/samples/bpf/
+          cp -r ratelimiting /usr/src/linux/samples/bpf/
           cd /usr/src/linux/samples/bpf/ratelimiting
           git log
           ls
