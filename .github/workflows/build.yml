@@ -7,8 +7,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container:
-      image: ubuntu:bionic-20210930
+    #container:
+    #  image: ubuntu:bionic-20210930
 
     steps:
       - name: setup build dir
