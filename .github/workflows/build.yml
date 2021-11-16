@@ -10,13 +10,8 @@ jobs:
     container:
       image: ubuntu:bionic
 
-    steps:
-      - name: check docker container
-        run: |
-          pwd
-          whoami
-          
-      - name: setup build dir
+    steps:          
+      - name: Setup build environment
         run: |
           apt-get update
           apt-get install -y bc \
@@ -28,6 +23,7 @@ jobs:
           flex \
           gcc-8 \
           gcc-multilib \
+          git \
           gnutls-bin \
           libc6-dev \
           libcurl4-openssl-dev \
@@ -40,32 +36,23 @@ jobs:
           linux-tools-common \
           linux-tools-generic \
           llvm \
-          rsync \
-          git
+          rsync
       
-      - name: clone kernel
+      - name: Clone dependencies 
         run: |
-          whoami
-          ls -l / | grep usr
           chmod 777 /usr
-          echo "After permission"
-          ls -l / | grep usr
-          #sudo chown -R $(whoami):$(whoami) /usr
-          git clone --branch v5.1 --depth 1 https://github.com/torvalds/linux.git /usr/src/linux
           LINUX_SRC_DIR=/usr/src/linux
+          git clone --branch v5.1 --depth 1 https://github.com/torvalds/linux.git $LINUX_SRC_DIR
           cd $LINUX_SRC_DIR
           make defconfig
 
-      - name: Clone repo
+      - name: Clone kernel function repository
         uses: actions/checkout@v2
 
-      - name: build ratelimiting
+      - name: Build kernel function
         run: |
           cd $GITHUB_WORKSPACE/../
-          pwd
           cp -r ratelimiting /usr/src/linux/samples/bpf/
           cd /usr/src/linux/samples/bpf/ratelimiting
-          git log
-          ls
           make
           
