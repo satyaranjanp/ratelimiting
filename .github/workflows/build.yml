@@ -54,6 +54,7 @@ jobs:
           pwd
           mv ratelimiting /usr/src/linux/samples/bpf/
           cd /usr/src/linux/samples/bpf/ratelimiting
+          git log
           ls
           make
           
