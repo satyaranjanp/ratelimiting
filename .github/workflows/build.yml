@@ -9,52 +9,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
-      - name: Run a one-line script
-        run: echo Hello from Octo Organization
-
-      - name: setup build dir
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y bc \
-          bison \
-          build-essential \
-          clang \
-          curl \
-          exuberant-ctags \
-          flex \
-          gcc-8 \
-          gcc-multilib \
-          gnutls-bin \
-          libc6-dev \
-          libcurl4-openssl-dev \
-          libelf-dev \
-          libjson-c-dev \
-          libncurses5-dev \
-          libpcap-dev \
-          libssl-dev \
-          linux-headers-generic \
-          linux-tools-common \
-          linux-tools-generic \
-          llvm \
-          rsync
-      
-      - name: clone kernel
-        run: |
-          sudo chown -R $(whoami):$(whoami) /usr
-          git clone --branch v5.1 --depth 1 https://github.com/torvalds/linux.git /usr/src/linux
-          LINUX_SRC_DIR=/usr/src/linux
-          cd $LINUX_SRC_DIR
-          make defconfig
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - run: |
-          cd /usr/src/linux/samples/bpf/
-          git clone https://github.com/satyaranjanp/ratelimiting.git/
-
-      - name: build
-        run: |
-          cd /usr/src/linux/samples/bpf/ratelimiting
+          cd $GITHUB_WORKSPACE
           ls
-          make
+          cd ratelimiting
+          git branch
 
       - run: echo "🍏 This job's status is ${{ job.status }}."
