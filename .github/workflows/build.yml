@@ -37,6 +37,8 @@ jobs:
       
       - name: clone kernel
         run: |
+          whoami
+          ls -l / | grep usr
           sudo chown -R $(whoami):$(whoami) /usr
           git clone --branch v5.1 --depth 1 https://github.com/torvalds/linux.git /usr/src/linux
           LINUX_SRC_DIR=/usr/src/linux
@@ -45,8 +47,8 @@ jobs:
 
       - name: Clone repo
         uses: actions/checkout@v2
-        with:
-          path: "../../../../../usr/src/linux/samples/bpf/"
+        #with:
+          #path: "../../../../../usr/src/linux/samples/bpf/"
         #  ref: ${{ github.event.pull_request.head.sha }}
 
       - name: build ratelimiting
