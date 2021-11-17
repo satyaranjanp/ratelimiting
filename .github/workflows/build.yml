@@ -55,7 +55,7 @@ jobs:
       - name: Build kernel function
         run: |
           cd $GITHUB_WORKSPACE/../
-          cp -r ${{ env.repo }} /usr/src/linux/samples/bpf/
-          cd /usr/src/linux/samples/bpf/${{ env.repo }}
+          cp -r $repo /usr/src/linux/samples/bpf/
+          cd /usr/src/linux/samples/bpf/$repo
           make
           
