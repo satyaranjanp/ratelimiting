@@ -1,14 +1,17 @@
 name: Build ratelimiting
 on:
-  pull_request:
+  pull_request: {}
+  push:
     branches:
-      - master
       - main
+
 jobs:
   build:
     runs-on: ubuntu-latest
     container:
       image: ubuntu:bionic
+    env:
+      repo: ratelimiting
 
     steps:          
       - name: Setup build environment
@@ -52,7 +55,7 @@ jobs:
       - name: Build kernel function
         run: |
           cd $GITHUB_WORKSPACE/../
-          cp -r ratelimiting /usr/src/linux/samples/bpf/
-          cd /usr/src/linux/samples/bpf/ratelimiting
+          cp -r ${{ env.repo }} /usr/src/linux/samples/bpf/
+          cd /usr/src/linux/samples/bpf/${{ env.repo }}
           make
           
