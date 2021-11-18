@@ -12,6 +12,7 @@ jobs:
       image: ubuntu:bionic
     env:
       REPO: ratelimiting
+      BUILD_PATH: src/linux/samples/bpf
 
     steps:          
       - name: Setup build environment
@@ -51,12 +52,12 @@ jobs:
       - name: Clone kernel function repository
         uses: actions/checkout@v2
         with:
-          path: src/linux/samples/bpf/${{ env.REPO }}
+          path: ${{ env.BUILD_PATH }}/${{ env.REPO }}
 
       - name: Build kernel function
         run: |
-          cd $GITHUB_WORKSPACE/src/linux/samples/bpf/
+          cd $GITHUB_WORKSPACE/$BUILD_PATH/$REPO
           ls
-          cd $GITHUB_WORKSPACE/src/linux/samples/bpf/$REPO
-          #make
+          HOME=$GITHUB_WORKSPACE
+          make
           
