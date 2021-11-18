@@ -55,6 +55,7 @@ jobs:
 
       - name: Build kernel function
         run: |
-          cd $GITHUB_WORKSPACE/src/linux/samples/bpf/$REPO
-          make
+          cd $GITHUB_WORKSPACE/src/linux/samples/bpf/
+          ls
+          #make
           
