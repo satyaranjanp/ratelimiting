@@ -3,7 +3,8 @@
 # Check for linux source path dependency
 ifndef LINUX_SRC_PATH
 all:
-	@echo LINUX_SRC_PATH env variable is not defined. 
+	@echo LINUX_SRC_PATH env variable is not defined.
+	@exit 1
 else
 all:build tar.zip
 endif
