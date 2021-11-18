@@ -56,7 +56,7 @@ jobs:
       - name: Build kernel function
         run: |
           echo "LINUX_SRC_PATH=$GITHUB_WORKSPACE/linux" >> $GITHUB_ENV
-          echo $LINUX_SRC_PATH
-          cd $LINUX_SRC_PATH/$BUILD_PATH/$REPO
+          echo ${{ env.LINUX_SRC_PATH }}
+          cd ${{ env.LINUX_SRC_PATH }}/$BUILD_PATH/$REPO
           make
           
