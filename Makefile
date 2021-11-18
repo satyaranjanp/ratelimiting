@@ -1,6 +1,14 @@
 # SPDX-License-Identifier: GPL-2.0
 
-LINUX_SRC_PATH := $(PWD)/linux
+# Check for linux source path dependency
+ifndef LINUX_SRC
+all:
+        @echo LINUX_SRC env variable is not defined. 
+else
+all:build tar.zip
+endif
+
+LINUX_SRC_PATH := $(LINUX_SRC)/linux
 BPF_SAMPLES_PATH := $(LINUX_SRC_PATH)/samples/bpf
 TOOLS_PATH := $(BPF_SAMPLES_PATH)/../../tools
 L3AF_SRC_PATH := $(BPF_SAMPLES_PATH)/ratelimiting
@@ -46,8 +54,6 @@ HOSTCC = $(CROSS_COMPILE)gcc
 CLANG_ARCH_ARGS = -target $(ARCH)
 endif
 
-# Trick to allow make to be run from this directory
-all:build tar.zip
 tar.zip:
 	@rm -rf l3af_ratelimiting
 	@rm -f l3af_ratelimiting.tar.gz
