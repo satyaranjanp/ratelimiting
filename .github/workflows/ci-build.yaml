@@ -12,8 +12,7 @@ jobs:
       image: ubuntu:bionic
     env:
       REPO: ratelimiting
-      LINUX_SRC_PATH: src/linux
-      BUILD_PATH: src/linux/samples/bpf
+      BUILD_PATH: linux/samples/bpf
 
     steps:          
       - name: Setup build environment
@@ -45,9 +44,8 @@ jobs:
       
       - name: Clone dependencies 
         run: |
-          LINUX_SRC_DIR=$GITHUB_WORKSPACE/$LINUX_SRC_PATH
-          git clone --branch v5.1 --depth 1 https://github.com/torvalds/linux.git $LINUX_SRC_DIR
-          cd $LINUX_SRC_DIR
+          git clone --branch v5.1 --depth 1 https://github.com/torvalds/linux.git .
+          cd linux
           make defconfig
 
       - name: Clone kernel function repository
@@ -57,7 +55,7 @@ jobs:
 
       - name: Build kernel function
         run: |
-          HOME=$GITHUB_WORKSPACE
-          cd $GITHUB_WORKSPACE/$BUILD_PATH/$REPO
+          LINUX_SRC=$GITHUB_WORKSPACE
+          cd $LINUX_SRC/$BUILD_PATH/$REPO
           make
           
