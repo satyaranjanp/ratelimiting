@@ -1,18 +1,16 @@
 # SPDX-License-Identifier: GPL-2.0
 
 # Check for linux source path dependency
-ifndef LINUX_SRC
+ifndef LINUX_SRC_PATH
 all:
-	@echo LINUX_SRC env variable is not defined. 
+	@echo LINUX_SRC_PATH env variable is not defined. 
 else
 all:build tar.zip
 endif
 
-LINUX_SRC_PATH := $(LINUX_SRC)/linux
 BPF_SAMPLES_PATH := $(LINUX_SRC_PATH)/samples/bpf
 TOOLS_PATH := $(BPF_SAMPLES_PATH)/../../tools
 L3AF_SRC_PATH := $(BPF_SAMPLES_PATH)/ratelimiting
-
 
 # List of programs to build
 hostprogs-y := ratelimiting
