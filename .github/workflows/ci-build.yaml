@@ -51,7 +51,7 @@ jobs:
       - name: Clone kernel function repository
         uses: actions/checkout@v2
         with:
-          path: ${{ GITHUB_WORKSPACE }}/src/linux/samples/bpf
+          path: src/linux/samples/bpf
 
       - name: Build kernel function
         run: |
