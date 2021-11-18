@@ -12,8 +12,6 @@ jobs:
       image: ubuntu:bionic
     env:
       REPO: ratelimiting
-      LINUX_DIR: ${{ env.GITHUB_WORKSPACE }}/src/linux
-      REPO_PATH: ${{ env.LINUX_DIR }}/samples/bpf
 
     steps:          
       - name: Setup build environment
@@ -45,17 +43,18 @@ jobs:
       
       - name: Clone dependencies 
         run: |
-          git clone --branch v5.1 --depth 1 https://github.com/torvalds/linux.git $LINUX_DIR
-          cd $LINUX_DIR
+          LINUX_SRC_DIR=$GITHUB_WORKSPACE/src/linux
+          git clone --branch v5.1 --depth 1 https://github.com/torvalds/linux.git $LINUX_SRC_DIR
+          cd $LINUX_SRC_DIR
           make defconfig
 
       - name: Clone kernel function repository
         uses: actions/checkout@v2
         with:
-          path: ${{ env.REPO_PATH }}
+          path: ${{ env.GITHUB_WORKSPACE }}/src/linux/samples/bpf
 
       - name: Build kernel function
         run: |
-          cd $REPO_PATH
+          cd $GITHUB_WORKSPACE/src/linux/samples/bpf/$REPO
           make
           
