@@ -11,7 +11,8 @@ jobs:
     container:
       image: ubuntu:bionic
     env:
-      repo: ratelimiting
+      REPO: ratelimiting
+      LINUX_DIR: $HOME/src/linux
 
     steps:          
       - name: Setup build environment
@@ -43,9 +44,8 @@ jobs:
       
       - name: Clone dependencies 
         run: |
-          LINUX_SRC_DIR=$HOME/src/linux
-          git clone --branch v5.1 --depth 1 https://github.com/torvalds/linux.git $LINUX_SRC_DIR
-          cd $LINUX_SRC_DIR
+          git clone --branch v5.1 --depth 1 https://github.com/torvalds/linux.git $LINUX_DIR
+          cd $LINUX_DIR
           make defconfig
 
       - name: Clone kernel function repository
@@ -54,7 +54,8 @@ jobs:
       - name: Build kernel function
         run: |
           cd $GITHUB_WORKSPACE/../
-          cp -r $repo /usr/src/linux/samples/bpf/
-          cd /usr/src/linux/samples/bpf/$repo
+          BUILD_DIR=$LINUX_DIR/samples/bpf/
+          cp -r $REPO $BUILD_DIR
+          cd $BUILD_DIR/$REPO
           make
           
