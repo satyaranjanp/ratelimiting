@@ -56,6 +56,6 @@ jobs:
       - name: Build kernel function
         run: |
           LINUX_SRC_PATH=$GITHUB_WORKSPACE/linux
-          cd $LINUX_SRC/$BUILD_PATH/$REPO
+          cd $LINUX_SRC_PATH/$BUILD_PATH/$REPO
           make
           
