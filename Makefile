@@ -113,4 +113,3 @@ $(obj)/%.o: $(src)/%.c
 ifeq ($(DWARF2BTF),y)
 	$(BTF_PAHOLE) -J $@
 endif
-
