@@ -43,7 +43,7 @@ jobs:
       
       - name: Clone dependencies 
         run: |
-          LINUX_SRC_DIR=$(HOME)/src/linux
+          LINUX_SRC_DIR=$HOME/src/linux
           git clone --branch v5.1 --depth 1 https://github.com/torvalds/linux.git $LINUX_SRC_DIR
           cd $LINUX_SRC_DIR
           make defconfig
